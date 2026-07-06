@@ -32,7 +32,7 @@ func getEnv(key, fallback string) string {
 }
 
 var AppConfig = Config{
-	Algorithm: "sliding_window", // change to "token_bucket" to switch
+	Algorithm: "token_bucket", // change to "sliding_window" to switch
 
 	RateLimit: 5,
 	Window:    10 * time.Second,
