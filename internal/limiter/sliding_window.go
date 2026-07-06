@@ -2,6 +2,7 @@ package limiter
 
 import (
 	_ "embed"
+	"fmt"
 	"time"
 
 	goredis "github.com/redis/go-redis/v9"
@@ -10,35 +11,41 @@ import (
 	redisClient "github.com/saniasiddiqui231/distributed-rate-limiter/internal/redis"
 )
 
-//go:embed token_limiter.lua
-var luaScript string
+//go:embed slidingwindow.lua
+var slidingWindowLua string
 
-type TokenBucket struct {
+type SlidingWindow struct {
 	script *goredis.Script
 }
 
-func NewTokenBucket() *TokenBucket {
-	return &TokenBucket{
-		script: goredis.NewScript(luaScript),
+func NewSlidingWindow() *SlidingWindow {
+	return &SlidingWindow{
+		script: goredis.NewScript(slidingWindowLua),
 	}
 }
 
-func (l *TokenBucket) Allow(clientID string) (bool, error) {
+func (s *SlidingWindow) Allow(clientID string) (bool, error) {
 
 	key := "rate_limit:" + clientID
 
-	now := time.Now().Unix()
+	now := time.Now()
 
-	result, err := l.script.Run(
+	timestamp := now.Unix()
+
+	member := fmt.Sprintf(
+		"%d-%d",
+		timestamp,
+		now.UnixNano(),
+	)
+
+	result, err := s.script.Run(
 		redisClient.Ctx,
 		redisClient.Client,
 		[]string{key},
-
 		config.AppConfig.RateLimit,
-		config.AppConfig.RefillTokens,
-		int(config.AppConfig.RefillInterval.Seconds()),
-		now,
-		int(config.AppConfig.KeyTTL.Seconds()),
+		int(config.AppConfig.Window.Seconds()),
+		timestamp,
+		member,
 	).Int()
 
 	if err != nil {

@@ -14,7 +14,7 @@ func New() (Limiter, error) {
 		return NewTokenBucket(), nil
 
 	case "sliding_window":
-		return nil, fmt.Errorf("sliding window not implemented yet")
+		return NewSlidingWindow(), nil
 
 	default:
 		return nil, fmt.Errorf("unknown algorithm: %s", config.AppConfig.Algorithm)
