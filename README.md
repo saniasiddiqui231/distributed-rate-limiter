@@ -2,6 +2,8 @@
 
 A distributed API Gateway written in Go that performs request rate limiting using Redis as shared state.
 
+![Project](grafana2.png)
+
 The project supports two pluggable rate limiting algorithms:
 
 - Token Bucket
@@ -10,6 +12,14 @@ The project supports two pluggable rate limiting algorithms:
 The gateway sits in front of backend services and decides whether requests should be forwarded or rejected with HTTP **429 Too Many Requests**.
 
 ---
+
+# Screenshots
+
+![Project](grafana1.png)
+
+![Project](grafana3.png)
+
+![Project](prometheus.png)
 
 # Features
 
